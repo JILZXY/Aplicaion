@@ -10,15 +10,16 @@ import com.example.examen.data.InterfaceUser.UserDao
 import com.example.examen.presentation.views.Home
 import com.example.examen.presentation.views.View1
 import com.example.examen.presentation.views.View2
+import com.example.examen.viewModel.UserViewModel
 
 @Composable
-fun NavManager(darkModeStore: DataStoreDarkMode, darkMode: Boolean, userDao: UserDao){
+fun NavManager(darkModeStore: DataStoreDarkMode, darkMode: Boolean, viewModel: UserViewModel){
     val navController = rememberNavController()
     NavHost(
         navController = navController,
         startDestination = "Home"){
         composable ("Home"){ Home(navController) }
         composable ("View1"){ View1(navController, darkModeStore, darkMode) }
-        composable ("View2"){ View2(navController, userDao) }
+        composable ("View2"){ View2(navController, viewModel) }
     }
 }

@@ -3,11 +3,13 @@ package com.example.examen.presentation.views
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -17,27 +19,25 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.room.Room
-import com.example.examen.data.AppDatabase
 import com.example.examen.data.Entity.User
-import com.example.examen.data.InterfaceUser.UserDao
-import kotlinx.coroutines.Dispatchers
+import com.example.examen.viewModel.UserViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun View2(navController: NavController, userDao: UserDao) {
+fun View2(navController: NavController, viewModel: UserViewModel) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -54,16 +54,17 @@ fun View2(navController: NavController, userDao: UserDao) {
             )
         }
     ) {
-        ContenteView2(it, userDao)
+        ContenteView2(it, viewModel)
     }
 }
 
 @Composable
-fun ContenteView2(innerPadding: PaddingValues, userDao: UserDao){
+fun ContenteView2(innerPadding: PaddingValues, viewModel: UserViewModel){
     val scope = rememberCoroutineScope()
     var texto1 by rememberSaveable { mutableStateOf("") }
     var texto2 by rememberSaveable { mutableStateOf("") }
     var texto3 by rememberSaveable { mutableStateOf("") }
+    val usuarioRecuperado by viewModel.user.collectAsState()
     Column (verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -83,20 +84,30 @@ fun ContenteView2(innerPadding: PaddingValues, userDao: UserDao){
         TextField(
             value = texto3,
             onValueChange = { text -> texto3 = text },
-            label = { Text("Identificate pa") }
+            label = { Text("Identificate pa (numero ID)") }
         )
         Spacer(modifier = Modifier.height(30.dp))
-        Button(onClick = {
-            scope.launch {
-                val newUser = User(texto3, texto1, texto2)
-                withContext(Dispatchers.IO) {
-                    userDao.insertAll(newUser)
-                    println("")
+        Row {
+            Button(onClick = {
+                scope.launch {
+                    val userId = texto3.toIntOrNull()
+                    if (userId != null && userId > 0) {
+                        val user = User(uid = userId, firstName = texto1, lastName = texto2)
+                        viewModel.insertUser(user)
+                    }
                 }
+    
+            }) {
+                Text("Guardar")
             }
-        }) {
-            println("hola")
-            Text("Guardalo no hay problem my friend")
+            Spacer(modifier = Modifier.padding(horizontal = 8.dp))
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        usuarioRecuperado?.let {
+            Text("Usuario guardado:")
+            Text("Nombre: ${it.firstName}")
+            Text("Apellido: ${it.lastName}")
+            Text("ID: ${it.uid}")
         }
     }
 }
