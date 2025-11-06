@@ -3,6 +3,7 @@ package com.example.examen.data.InterfaceUser
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.examen.data.Entity.User
 import kotlinx.coroutines.flow.Flow
@@ -23,7 +24,7 @@ interface UserDao {
     fun getById(id: Int): Flow<User?>
 
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(vararg users: User)
 
     @Delete

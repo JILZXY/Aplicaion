@@ -64,6 +64,7 @@ fun ContenteView2(innerPadding: PaddingValues, viewModel: UserViewModel){
     var texto1 by rememberSaveable { mutableStateOf("") }
     var texto2 by rememberSaveable { mutableStateOf("") }
     var texto3 by rememberSaveable { mutableStateOf("") }
+    var texto4 by rememberSaveable { mutableStateOf("") }
     val usuarioRecuperado by viewModel.user.collectAsState()
     Column (verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -100,8 +101,17 @@ fun ContenteView2(innerPadding: PaddingValues, viewModel: UserViewModel){
             }) {
                 Text("Guardar")
             }
-            Spacer(modifier = Modifier.padding(horizontal = 8.dp))
         }
+        Spacer(modifier = Modifier.padding(horizontal = 8.dp))
+        TextField(
+            value = texto4,
+            onValueChange = { text -> texto4 = text },
+            label = { Text("Buscale por ID papi") }
+        )
+        Button(onClick = {
+            val userId = texto4.toIntOrNull() ?: -1
+            viewModel.searchUserById(userId)
+        }) { Text("Buscar") }
         Spacer(modifier = Modifier.height(20.dp))
         usuarioRecuperado?.let {
             Text("Usuario guardado:")

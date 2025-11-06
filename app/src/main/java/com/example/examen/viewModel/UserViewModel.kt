@@ -18,18 +18,16 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
 
     private val _userId = MutableStateFlow<Int?>(null)
 
-    // SOLUCIÓN: Convierte el Flow resultante en un StateFlow usando stateIn
     val user: StateFlow<User?> = _userId.flatMapLatest { userId ->
         if (userId == null || userId <= 0) {
-            // Usa flowOf para crear un Flow simple que emite un único valor (null)
             flowOf(null)
         } else {
-            userDao.getById(userId) // Esto ya devuelve un Flow<User?>
+            userDao.getById(userId)
         }
-    }.stateIn( // Convierte el Flow<User?> a un StateFlow<User?>
+    }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = null // El valor inicial será null hasta que la coroutina emita el primer valor
+        initialValue = null
     )
 
     fun searchUserById(id: Int) {
@@ -37,10 +35,9 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
     }
 
     fun insertUser(user: User) {
-        if (user.uid > 0) { // Validamos que el ID sea válido
+        if (user.uid > 0) {
             viewModelScope.launch {
                 userDao.insertAll(user)
-                // Después de insertar, actualizamos el ID para que el Flow se actualice
                 _userId.value = user.uid
             }
         }
